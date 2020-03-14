@@ -1,0 +1,7 @@
+﻿<Project>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8" />
+    </ItemGroup>
+
+</Project>
