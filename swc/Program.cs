@@ -36,7 +36,7 @@ namespace Selawik.Compiler
                 SyntaxToken token;
                 while ((token = lexer.Lex()).Kind != SyntaxKind.EndOfFileToken)
                 {
-                    Console.WriteLine(token);
+                    token.WriteTo(Console.Out);
                 }
             }
         }

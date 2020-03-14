@@ -30,15 +30,13 @@ namespace Selawik.CodeAnalysis.Text
             this.text = text;
         }
 
-        public static SourceText From(String text)
-        {
-            return new SourceText(text);
-        }
+        public static SourceText From(String text) => new SourceText(text);
 
         public override String ToString() => text;
+        public String ToString(Int32 start, Int32 length) => text.Substring(start, length);
+        public String ToString(TextSpan span) => ToString(span.Start, span.Length);
 
         public Char this[Int32 index] => text[index];
-
         public Int32 Length => text.Length;
     }
 }

@@ -17,8 +17,9 @@
 //  along with swc.  If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Selawik.CodeAnalysis.Text;
 
@@ -31,5 +32,53 @@ namespace Selawik.CodeAnalysis.Syntax
         public abstract IEnumerable<SyntaxNode> GetChildren();
 
         public virtual TextSpan Span => TextSpan.FromBounds(GetChildren().First().Span.Start, GetChildren().Last().Span.End);
+
+        public void WriteTo(TextWriter writer)
+        {
+            PrettyPrint(writer, this);
+        }
+
+        public override String ToString()
+        {
+            using var sr = new StringWriter();
+            PrettyPrint(sr, this);
+            return sr.ToString();
+        }
+
+        static void PrettyPrint(TextWriter writer, SyntaxNode node, String indent = "", Boolean isLast = true)
+        {
+            var toConsole = writer == Console.Out;
+            var marker = isLast ? "└──" : "├──";
+
+            if (toConsole)
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+
+            writer.Write(indent);
+            writer.Write(marker);
+
+            if (toConsole)
+                Console.ForegroundColor = node is SyntaxToken ? ConsoleColor.Blue : ConsoleColor.Cyan;
+
+            writer.Write(node.Kind);
+
+            if (node is SyntaxToken { Value: { } } t)
+            {
+                writer.Write(" ");
+                writer.Write(t.Value);
+            }
+
+            if (toConsole)
+                Console.ResetColor();
+
+            writer.WriteLine();
+
+            indent += isLast ? "   " : "│  ";
+
+            var lastChild = node.GetChildren().LastOrDefault();
+
+            foreach (var child in node.GetChildren())
+                PrettyPrint(writer, child, indent, child == lastChild);
+        }
+
     }
 }

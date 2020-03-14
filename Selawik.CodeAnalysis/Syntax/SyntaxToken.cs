@@ -26,7 +26,7 @@ namespace Selawik.CodeAnalysis.Syntax
 {
     public class SyntaxToken : SyntaxNode
     {
-        public SyntaxToken(SyntaxKind kind, Int32 position, String text, Object value)
+        public SyntaxToken(SyntaxKind kind, Int32 position, String text, Object? value)
         {
             Kind = kind;
             Position = position;
@@ -37,7 +37,7 @@ namespace Selawik.CodeAnalysis.Syntax
         public override SyntaxKind Kind { get; }
         public Int32 Position { get; }
         public String Text { get; }
-        public Object Value { get; }
+        public Object? Value { get; }
         public override TextSpan Span => new TextSpan(Position, Text?.Length ?? 0);
 
         /// <summary>

@@ -18,6 +18,7 @@
 // 
 
 using System;
+using System.Text;
 using Selawik.CodeAnalysis.Syntax;
 using Selawik.CodeAnalysis.Text;
 
@@ -41,9 +42,150 @@ namespace Selawik.CodeAnalysis
             kind = SyntaxKind.BadToken;
             value = null;
 
-            return default;
+            switch (Current)
+            {
+                case '\0': kind = SyntaxKind.EndOfFileToken; break;
+                case '+': kind = SyntaxKind.PlusToken; position++; break;
+                case '-': kind = SyntaxKind.MinusToken; position++; break;
+                case '*': kind = SyntaxKind.StarToken; position++; break;
+                case '/': kind = SyntaxKind.SlashToken; position++; break;
+                case '(': kind = SyntaxKind.OpenParenthesisToken; position++; break;
+                case ')': kind = SyntaxKind.CloseParenthesisToken; position++; break;
+                case '{': kind = SyntaxKind.OpenBraceToken; position++; break;
+                case '}': kind = SyntaxKind.CloseBraceToken; position++; break;
+                case ':': kind = SyntaxKind.ColonToken; position++; break;
+                case ',': kind = SyntaxKind.CommaToken; position++; break;
+                case '~': kind = SyntaxKind.TildeToken; position++; break;
+                case '^': kind = SyntaxKind.HatToken; position++; break;
+                case '&': LexDoubleOperator('&', SyntaxKind.AmpersandToken, SyntaxKind.AmpersandAmpersandToken); break;
+                case '|': LexDoubleOperator('|', SyntaxKind.PipeToken, SyntaxKind.PipePipeToken); break;
+                case '=': LexDoubleOperator('=', SyntaxKind.EqualsToken, SyntaxKind.EqualsEqualsToken); break;
+                case '!': LexDoubleOperator('=', SyntaxKind.BangToken, SyntaxKind.BangEqualsToken); break;
+                case '<': LexDoubleOperator('=', SyntaxKind.LessToken, SyntaxKind.LessEqualsToken); break;
+                case '>': LexDoubleOperator('=', SyntaxKind.GreaterToken, SyntaxKind.GreaterEqualsToken); break;
+                case '"': LexString(); break;
+                case var c when c >= '0' && c <= '9': LexNumber(); break;
+                case ' ':
+                case '\t':
+                case '\n':
+                case '\r':
+                    LexWhiteSpace(); break;
+                default:
+                    if (Char.IsLetter(Current))
+                        LexIdentifierOrKeyword();
+                    else if (char.IsWhiteSpace(Current))
+                        LexWhiteSpace();
+                    else
+                    {
+                        // TODO: Diagnostics
+                        position++;
+                    }
+                    break;
+
+            }
+
+            var length = position - start;
+            var sourceText = SyntaxFacts.GetText(kind) ?? text.ToString(start, length);
+
+            return new SyntaxToken(kind, start, sourceText, value);
         }
 
+        private void LexDoubleOperator(Char expecting, SyntaxKind single, SyntaxKind @double)
+        {
+            position++;
+
+            if (Current != expecting)
+            {
+                kind = single;
+            }
+            else
+            {
+                kind = @double;
+                position++;
+            }
+        }
+
+        private void LexString()
+        {
+            // Skip the current quote
+            position++;
+
+            var sb = new StringBuilder();
+            var done = false;
+
+            while (!done)
+            {
+                switch (Current)
+                {
+                    case '\0':
+                    case '\r':
+                    case '\n':
+                        // TODO: Diagnostics
+                        done = true;
+                        break;
+                    case '"':
+                        if (Lookahead == '"')
+                        {
+                            sb.Append(Current);
+                            position += 2;
+                        }
+                        else
+                        {
+                            position++;
+                            done = true;
+                        }
+                        break;
+                    default:
+                        sb.Append(Current);
+                        position++;
+                        break;
+                }
+            }
+
+            kind = SyntaxKind.StringToken;
+            value = sb.ToString();
+        }
+
+        private void LexWhiteSpace()
+        {
+            while (Char.IsWhiteSpace(Current))
+                position++;
+
+            kind = SyntaxKind.WhitespaceToken;
+        }
+
+
+        private void LexNumber()
+        {
+            while (Char.IsDigit(Current))
+                position++;
+
+            var length = position - start;
+            var source = text.ToString(start, length);
+
+            // TODO: Read dobule
+            if (!Int32.TryParse(source, out var parsed))
+            {
+                // TODO: Diagnostics
+            }
+
+
+            value = parsed;
+            kind = SyntaxKind.NumberToken;
+        }
+
+        private void LexIdentifierOrKeyword()
+        {
+            while (Char.IsLetter(Current))
+                position++;
+
+            var length = position - start;
+            var source = text.ToString(start, length);
+            kind = SyntaxFacts.GetKeywordKind(source);
+        }
+
+        Char Current => Peek(0);
+        Char Lookahead => Peek(1);
 
         Char Peek(Int32 offset)
         {
