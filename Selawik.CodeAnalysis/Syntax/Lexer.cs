@@ -18,10 +18,41 @@
 // 
 
 using System;
+using Selawik.CodeAnalysis.Syntax;
+using Selawik.CodeAnalysis.Text;
 
 namespace Selawik.CodeAnalysis
 {
     public class Lexer
     {
+        readonly SourceText text;
+        Int32 start, position;
+        SyntaxKind kind;
+        Object? value;
+
+        public Lexer(SourceText text)
+        {
+            this.text = text;
+        }
+
+        public SyntaxToken Lex()
+        {
+            start = position;
+            kind = SyntaxKind.BadToken;
+            value = null;
+
+            return default;
+        }
+
+
+        Char Peek(Int32 offset)
+        {
+            var index = position + offset;
+
+            if (index >= text.Length)
+                return '\0';
+
+            return text[index];
+        }
     }
 }

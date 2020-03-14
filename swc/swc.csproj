@@ -4,6 +4,10 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <RootNamespace>Selawik.Compiler</RootNamespace>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Selawik.CodeAnalysis\Selawik.CodeAnalysis.csproj" />
+    </ItemGroup>
 </Project>

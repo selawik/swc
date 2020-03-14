@@ -15,30 +15,30 @@
 //  
 //  You should have received a copy of the GNU General Public License
 //  along with swc.  If not, see <https://www.gnu.org/licenses/>.
-//  
+// 
 
 using System;
-using Selawik.CodeAnalysis;
-using Selawik.CodeAnalysis.Syntax;
-using Selawik.CodeAnalysis.Text;
 
-namespace Selawik.Compiler
+namespace Selawik.CodeAnalysis.Text
 {
-    class Program
+    public class SourceText
     {
-        static void Main(String[] args)
-        {
-            while (true)
-            {
-                var input = Console.ReadLine();
-                var lexer = new Lexer(SourceText.From(input));
+        readonly String text;
 
-                SyntaxToken token;
-                while ((token = lexer.Lex()).Kind != SyntaxKind.EndOfFileToken)
-                {
-                    Console.WriteLine(token);
-                }
-            }
+        public SourceText(String text)
+        {
+            this.text = text;
         }
+
+        public static SourceText From(String text)
+        {
+            return new SourceText(text);
+        }
+
+        public override String ToString() => text;
+
+        public Char this[Int32 index] => text[index];
+
+        public Int32 Length => text.Length;
     }
 }
