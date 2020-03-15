@@ -18,70 +18,67 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
     public static class SyntaxFacts
     {
-        public static String? GetText(SyntaxKind kind) => kind switch
+        static readonly Dictionary<SyntaxKind, String> to = new Dictionary<SyntaxKind, String>
         {
-            SyntaxKind.PlusToken => "+",
-            SyntaxKind.MinusToken => "-",
-            SyntaxKind.StarToken => "*",
-            SyntaxKind.SlashToken => "/",
-            SyntaxKind.BangToken => "!",
-            SyntaxKind.EqualsToken => "=",
-            SyntaxKind.TildeToken => "~",
-            SyntaxKind.LessToken => "<",
-            SyntaxKind.LessEqualsToken => "<=",
-            SyntaxKind.GreaterToken => ">",
-            SyntaxKind.GreaterEqualsToken => ">=",
-            SyntaxKind.AmpersandToken => "&",
-            SyntaxKind.AmpersandAmpersandToken => "&&",
-            SyntaxKind.PipeToken => "|",
-            SyntaxKind.PipePipeToken => "||",
-            SyntaxKind.HatToken => "^",
-            SyntaxKind.EqualsEqualsToken => "==",
-            SyntaxKind.BangEqualsToken => "!=",
-            SyntaxKind.OpenParenthesisToken => "(",
-            SyntaxKind.CloseParenthesisToken => ")",
-            SyntaxKind.OpenBraceToken => "{",
-            SyntaxKind.CloseBraceToken => "}",
-            SyntaxKind.ColonToken => ":",
-            SyntaxKind.CommaToken => ",",
-            SyntaxKind.BreakKeyword => "break",
-            SyntaxKind.ContinueKeyword => "continue",
-            SyntaxKind.ElseKeyword => "else",
-            SyntaxKind.FalseKeyword => "false",
-            SyntaxKind.ForKeyword => "for",
-            SyntaxKind.FunctionKeyword => "function",
-            SyntaxKind.IfKeyword => "if",
-            SyntaxKind.LetKeyword => "let",
-            SyntaxKind.ReturnKeyword => "return",
-            SyntaxKind.TrueKeyword => "true",
-            SyntaxKind.VarKeyword => "var",
-            SyntaxKind.WhileKeyword => "while",
-            SyntaxKind.DoKeyword => "do",
-            _ => null,
+            { SyntaxKind.PlusToken, "+" },
+            { SyntaxKind.MinusToken, "-" },
+            { SyntaxKind.StarToken, "*" },
+            { SyntaxKind.SlashToken, "/" },
+            { SyntaxKind.BangToken, "!" },
+            { SyntaxKind.EqualsToken, "=" },
+            { SyntaxKind.TildeToken, "~" },
+            { SyntaxKind.LessToken, "<" },
+            { SyntaxKind.LessEqualsToken, "<=" },
+            { SyntaxKind.GreaterToken, ">" },
+            { SyntaxKind.GreaterEqualsToken, ">=" },
+            { SyntaxKind.AmpersandToken, "&" },
+            { SyntaxKind.AmpersandAmpersandToken, "&&" },
+            { SyntaxKind.PipeToken, "|" },
+            { SyntaxKind.PipePipeToken, "||" },
+            { SyntaxKind.HatToken, "^" },
+            { SyntaxKind.EqualsEqualsToken, "==" },
+            { SyntaxKind.BangEqualsToken, "!=" },
+            { SyntaxKind.OpenParenthesisToken, "(" },
+            { SyntaxKind.CloseParenthesisToken, ")" },
+            { SyntaxKind.OpenBraceToken, "{" },
+            { SyntaxKind.CloseBraceToken, "}" },
+            { SyntaxKind.ColonToken, ":" },
+            { SyntaxKind.CommaToken, "," },
+            { SyntaxKind.BreakKeyword, "break" },
+            { SyntaxKind.ContinueKeyword, "continue" },
+            { SyntaxKind.ElseKeyword, "else" },
+            { SyntaxKind.FalseKeyword, "false" },
+            { SyntaxKind.ForKeyword, "for" },
+            { SyntaxKind.IfKeyword, "if" },
+            { SyntaxKind.LetKeyword, "let" },
+            { SyntaxKind.ReturnKeyword, "return" },
+            { SyntaxKind.TrueKeyword, "true" },
+            { SyntaxKind.VarKeyword, "var" },
+            { SyntaxKind.WhileKeyword, "while" },
+            { SyntaxKind.DoKeyword, "do" },
+            { SyntaxKind.NamespaceKeyword, "namespace" },
+            { SyntaxKind.ClassKeyword, "class" },
+            { SyntaxKind.StructKeyword, "struct" },
+            { SyntaxKind.InterfaceKeyword, "interface" },
+            { SyntaxKind.AsyncKeyword, "async" },
+            { SyntaxKind.GetKeyword, "get" },
+            { SyntaxKind.SetKeyword, "set" },
+            { SyntaxKind.SwitchKeyword, "switch" },
+            { SyntaxKind.CaseKeyword, "case" },
+            { SyntaxKind.WhenKeyword, "when" },
         };
 
-        public static SyntaxKind GetKeywordKind(string text) => text switch
-        {
-            "break" => SyntaxKind.BreakKeyword,
-            "continue" => SyntaxKind.ContinueKeyword,
-            "else" => SyntaxKind.ElseKeyword,
-            "false" => SyntaxKind.FalseKeyword,
-            "for" => SyntaxKind.ForKeyword,
-            "function" => SyntaxKind.FunctionKeyword,
-            "if" => SyntaxKind.IfKeyword,
-            "let" => SyntaxKind.LetKeyword,
-            "return" => SyntaxKind.ReturnKeyword,
-            "true" => SyntaxKind.TrueKeyword,
-            "var" => SyntaxKind.VarKeyword,
-            "while" => SyntaxKind.WhileKeyword,
-            "do" => SyntaxKind.DoKeyword,
-            _ => SyntaxKind.IdentifierToken,
-        };
+        static readonly Dictionary<String, SyntaxKind> from = to.ToDictionary(k => k.Value, k => k.Key);
 
+        public static String? GetText(SyntaxKind kind) => to.TryGetValue(kind, out var result) ? result : null;
+
+        public static SyntaxKind GetKeywordKind(String text) => from.TryGetValue(text, out var kind) ? kind : SyntaxKind.IdentifierToken;
     }
 }

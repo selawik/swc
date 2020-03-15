@@ -36,6 +36,8 @@ namespace Selawik.CodeAnalysis
             this.text = text;
         }
 
+        public DiagnosticBag Diagnostics { get; } = new DiagnosticBag();
+
         public SyntaxToken Lex()
         {
             start = position;
@@ -73,11 +75,11 @@ namespace Selawik.CodeAnalysis
                 default:
                     if (Char.IsLetter(Current))
                         LexIdentifierOrKeyword();
-                    else if (char.IsWhiteSpace(Current))
+                    else if (Char.IsWhiteSpace(Current))
                         LexWhiteSpace();
                     else
                     {
-                        // TODO: Diagnostics
+                        Diagnostics.ReportBadCharacter(position, Current);
                         position++;
                     }
                     break;
@@ -120,7 +122,7 @@ namespace Selawik.CodeAnalysis
                     case '\0':
                     case '\r':
                     case '\n':
-                        // TODO: Diagnostics
+                        Diagnostics.ReportUnterminatedString(new TextSpan(start, 1));
                         done = true;
                         break;
                     case '"':
@@ -166,7 +168,7 @@ namespace Selawik.CodeAnalysis
             // TODO: Read dobule
             if (!Int32.TryParse(source, out var parsed))
             {
-                // TODO: Diagnostics
+                Diagnostics.ReportInvalidNumber(new TextSpan(start, length), text);
             }
 
 

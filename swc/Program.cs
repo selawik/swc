@@ -38,6 +38,13 @@ namespace Selawik.Compiler
                 {
                     token.WriteTo(Console.Out);
                 }
+
+                foreach (var diag in lexer.Diagnostics)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(diag);
+                }
+                Console.ResetColor();
             }
         }
     }

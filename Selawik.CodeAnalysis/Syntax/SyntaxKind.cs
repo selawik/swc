@@ -54,12 +54,19 @@ namespace Selawik.CodeAnalysis.Syntax
         IdentifierToken,
 
         // Keywords
+        NamespaceKeyword,
+        ClassKeyword,
+        StructKeyword,
+        InterfaceKeyword,
+        AsyncKeyword,
+        GetKeyword,
+        SetKeyword,
+
         BreakKeyword,
         ContinueKeyword,
         ElseKeyword,
         FalseKeyword,
         ForKeyword,
-        FunctionKeyword,
         IfKeyword,
         LetKeyword,
         ReturnKeyword,
@@ -67,5 +74,8 @@ namespace Selawik.CodeAnalysis.Syntax
         VarKeyword,
         WhileKeyword,
         DoKeyword,
+        SwitchKeyword,
+        CaseKeyword,
+        WhenKeyword
     }
 }
