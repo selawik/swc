@@ -61,7 +61,6 @@ namespace Selawik.CodeAnalysis.Syntax
         AsyncKeyword,
         GetKeyword,
         SetKeyword,
-
         BreakKeyword,
         ContinueKeyword,
         ElseKeyword,
@@ -76,6 +75,35 @@ namespace Selawik.CodeAnalysis.Syntax
         DoKeyword,
         SwitchKeyword,
         CaseKeyword,
-        WhenKeyword
+        WhenKeyword,
+
+        // Nodes
+        CompilationUnit,
+        FunctionDeclaration,
+        GlobalStatement,
+        Parameter,
+        TypeClause,
+        ElseClause,
+
+        // Statements
+        BlockStatement,
+        VariableDeclaration,
+        IfStatement,
+        WhileStatement,
+        DoWhileStatement,
+        ForStatement,
+        BreakStatement,
+        ContinueStatement,
+        ReturnStatement,
+        ExpressionStatement,
+
+        // Expressions
+        LiteralExpression,
+        NameExpression,
+        UnaryExpression,
+        BinaryExpression,
+        ParenthesizedExpression,
+        AssignmentExpression,
+        CallExpression
     }
 }

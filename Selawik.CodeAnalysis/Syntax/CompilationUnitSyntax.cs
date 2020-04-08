@@ -19,34 +19,22 @@
 
 using System;
 using System.Collections.Generic;
-using Selawik.CodeAnalysis.Text;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public class SyntaxToken : SyntaxNode
+    public sealed class CompilationUnitSyntax : SyntaxNode
     {
-        public SyntaxToken(SyntaxTree syntaxTree, SyntaxKind kind, Int32 position, String? text, Object? value) : base(syntaxTree)
+        public CompilationUnitSyntax(SyntaxTree syntaxTree, SyntaxToken endOfFileToken) : base(syntaxTree)
         {
-            Kind = kind;
-            Position = position;
-            Text = text;
-            Value = value;
+            EndOfFileToken = endOfFileToken;
         }
 
-        public override SyntaxKind Kind { get; }
-        public Int32 Position { get; }
-        public String? Text { get; }
-        public Object? Value { get; }
-        public override TextSpan Span => new TextSpan(Position, Text?.Length ?? 0);
-
-        /// <summary>
-        /// A token is missing if it was inserted by the parser and doesn't appear in source.
-        /// </summary>
-        public Boolean IsMissing => Text == null;
+        public override SyntaxKind Kind => SyntaxKind.CompilationUnit;
+        public SyntaxToken EndOfFileToken { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return this;
+            throw new NotImplementedException();
         }
     }
 }

@@ -27,22 +27,37 @@ namespace Selawik.CodeAnalysis.Syntax
 {
     public abstract class SyntaxNode
     {
+        protected SyntaxNode(SyntaxTree syntaxTree)
+        {
+            SyntaxTree = syntaxTree;
+        }
+
+        public SyntaxTree SyntaxTree { get; }
+
         public abstract SyntaxKind Kind { get; }
 
         public abstract IEnumerable<SyntaxNode> GetChildren();
 
         public virtual TextSpan Span => TextSpan.FromBounds(GetChildren().First().Span.Start, GetChildren().Last().Span.End);
 
+        public override String ToString()
+        {
+            var sr = new StringWriter();
+            PrettyPrint(sr, this);
+            return sr.ToString();
+        }
+
         public void WriteTo(TextWriter writer)
         {
             PrettyPrint(writer, this);
         }
 
-        public override String ToString()
+        public SyntaxToken GetLastToken()
         {
-            using var sr = new StringWriter();
-            PrettyPrint(sr, this);
-            return sr.ToString();
+            if (this is SyntaxToken token)
+                return token;
+
+            return GetChildren().Last().GetLastToken();
         }
 
         static void PrettyPrint(TextWriter writer, SyntaxNode node, String indent = "", Boolean isLast = true)
@@ -79,6 +94,5 @@ namespace Selawik.CodeAnalysis.Syntax
             foreach (var child in node.GetChildren())
                 PrettyPrint(writer, child, indent, child == lastChild);
         }
-
     }
 }

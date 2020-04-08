@@ -27,13 +27,15 @@ namespace Selawik.CodeAnalysis
     public class Lexer
     {
         readonly SourceText text;
+        readonly SyntaxTree syntaxTree;
         Int32 start, position;
         SyntaxKind kind;
         Object? value;
 
-        public Lexer(SourceText text)
+        public Lexer(SyntaxTree syntaxTree)
         {
-            this.text = text;
+            this.syntaxTree = syntaxTree;
+            text = syntaxTree.Text;
         }
 
         public DiagnosticBag Diagnostics { get; } = new DiagnosticBag();
@@ -89,7 +91,7 @@ namespace Selawik.CodeAnalysis
             var length = position - start;
             var sourceText = SyntaxFacts.GetText(kind) ?? text.ToString(start, length);
 
-            return new SyntaxToken(kind, start, sourceText, value);
+            return new SyntaxToken(syntaxTree, kind, start, sourceText, value);
         }
 
         private void LexDoubleOperator(Char expecting, SyntaxKind single, SyntaxKind @double)
