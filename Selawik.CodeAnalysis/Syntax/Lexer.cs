@@ -29,7 +29,7 @@ namespace Selawik.CodeAnalysis
         readonly SourceText text;
         readonly SyntaxTree syntaxTree;
         Int32 start, position;
-        SyntaxKind kind;
+        TokenKind kind;
         Object? value;
 
         public Lexer(SyntaxTree syntaxTree)
@@ -43,30 +43,32 @@ namespace Selawik.CodeAnalysis
         public SyntaxToken Lex()
         {
             start = position;
-            kind = SyntaxKind.BadToken;
+            kind = TokenKind.BadToken;
             value = null;
 
             switch (Current)
             {
-                case '\0': kind = SyntaxKind.EndOfFileToken; break;
-                case '+': kind = SyntaxKind.PlusToken; position++; break;
-                case '-': kind = SyntaxKind.MinusToken; position++; break;
-                case '*': kind = SyntaxKind.StarToken; position++; break;
-                case '/': kind = SyntaxKind.SlashToken; position++; break;
-                case '(': kind = SyntaxKind.OpenParenthesisToken; position++; break;
-                case ')': kind = SyntaxKind.CloseParenthesisToken; position++; break;
-                case '{': kind = SyntaxKind.OpenBraceToken; position++; break;
-                case '}': kind = SyntaxKind.CloseBraceToken; position++; break;
-                case ':': kind = SyntaxKind.ColonToken; position++; break;
-                case ',': kind = SyntaxKind.CommaToken; position++; break;
-                case '~': kind = SyntaxKind.TildeToken; position++; break;
-                case '^': kind = SyntaxKind.HatToken; position++; break;
-                case '&': LexDoubleOperator('&', SyntaxKind.AmpersandToken, SyntaxKind.AmpersandAmpersandToken); break;
-                case '|': LexDoubleOperator('|', SyntaxKind.PipeToken, SyntaxKind.PipePipeToken); break;
-                case '=': LexDoubleOperator('=', SyntaxKind.EqualsToken, SyntaxKind.EqualsEqualsToken); break;
-                case '!': LexDoubleOperator('=', SyntaxKind.BangToken, SyntaxKind.BangEqualsToken); break;
-                case '<': LexDoubleOperator('=', SyntaxKind.LessToken, SyntaxKind.LessEqualsToken); break;
-                case '>': LexDoubleOperator('=', SyntaxKind.GreaterToken, SyntaxKind.GreaterEqualsToken); break;
+                case '\0': kind = TokenKind.EndOfFileToken; break;
+                case '.': kind = TokenKind.DotToken; position++; break;
+                case ';': kind = TokenKind.SemicolonToken; position++; break;
+                case '+': kind = TokenKind.PlusToken; position++; break;
+                case '-': kind = TokenKind.MinusToken; position++; break;
+                case '*': kind = TokenKind.StarToken; position++; break;
+                case '/': kind = TokenKind.SlashToken; position++; break;
+                case '(': kind = TokenKind.OpenParenthesisToken; position++; break;
+                case ')': kind = TokenKind.CloseParenthesisToken; position++; break;
+                case '{': kind = TokenKind.OpenBraceToken; position++; break;
+                case '}': kind = TokenKind.CloseBraceToken; position++; break;
+                case ':': kind = TokenKind.ColonToken; position++; break;
+                case ',': kind = TokenKind.CommaToken; position++; break;
+                case '~': kind = TokenKind.TildeToken; position++; break;
+                case '^': kind = TokenKind.HatToken; position++; break;
+                case '&': LexDoubleOperator('&', TokenKind.AmpersandToken, TokenKind.AmpersandAmpersandToken); break;
+                case '|': LexDoubleOperator('|', TokenKind.PipeToken, TokenKind.PipePipeToken); break;
+                case '=': LexDoubleOperator('=', TokenKind.EqualsToken, TokenKind.EqualsEqualsToken); break;
+                case '!': LexDoubleOperator('=', TokenKind.BangToken, TokenKind.BangEqualsToken); break;
+                case '<': LexDoubleOperator('=', TokenKind.LessToken, TokenKind.LessEqualsToken); break;
+                case '>': LexDoubleOperator('=', TokenKind.GreaterToken, TokenKind.GreaterEqualsToken); break;
                 case '"': LexString(); break;
                 case var c when c >= '0' && c <= '9': LexNumber(); break;
                 case ' ':
@@ -74,11 +76,16 @@ namespace Selawik.CodeAnalysis
                 case '\n':
                 case '\r':
                     LexWhiteSpace(); break;
+
                 default:
                     if (Char.IsLetter(Current))
+                    {
                         LexIdentifierOrKeyword();
+                    }
                     else if (Char.IsWhiteSpace(Current))
+                    {
                         LexWhiteSpace();
+                    }
                     else
                     {
                         Diagnostics.ReportBadCharacter(position, Current);
@@ -94,7 +101,7 @@ namespace Selawik.CodeAnalysis
             return new SyntaxToken(syntaxTree, kind, start, sourceText, value);
         }
 
-        private void LexDoubleOperator(Char expecting, SyntaxKind single, SyntaxKind @double)
+        private void LexDoubleOperator(Char expecting, TokenKind single, TokenKind @double)
         {
             position++;
 
@@ -146,7 +153,7 @@ namespace Selawik.CodeAnalysis
                 }
             }
 
-            kind = SyntaxKind.StringToken;
+            kind = TokenKind.StringToken;
             value = sb.ToString();
         }
 
@@ -155,9 +162,8 @@ namespace Selawik.CodeAnalysis
             while (Char.IsWhiteSpace(Current))
                 position++;
 
-            kind = SyntaxKind.WhitespaceToken;
+            kind = TokenKind.WhitespaceToken;
         }
-
 
         private void LexNumber()
         {
@@ -175,7 +181,7 @@ namespace Selawik.CodeAnalysis
 
 
             value = parsed;
-            kind = SyntaxKind.NumberToken;
+            kind = TokenKind.NumberToken;
         }
 
         private void LexIdentifierOrKeyword()

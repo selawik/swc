@@ -35,5 +35,4 @@ namespace Selawik.CodeAnalysis
 
         public override String ToString() => $"({Span}) {Message}";
     }
-
 }

@@ -19,13 +19,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Selawik.CodeAnalysis.Text;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
     public class SyntaxToken : SyntaxNode
     {
-        public SyntaxToken(SyntaxTree syntaxTree, SyntaxKind kind, Int32 position, String? text, Object? value) : base(syntaxTree)
+        public SyntaxToken(SyntaxTree syntaxTree, TokenKind kind, Int32 position, String? text, Object? value) : base(syntaxTree)
         {
             Kind = kind;
             Position = position;
@@ -33,7 +34,7 @@ namespace Selawik.CodeAnalysis.Syntax
             Value = value;
         }
 
-        public override SyntaxKind Kind { get; }
+        public TokenKind Kind { get; }
         public Int32 Position { get; }
         public String? Text { get; }
         public Object? Value { get; }
@@ -44,9 +45,65 @@ namespace Selawik.CodeAnalysis.Syntax
         /// </summary>
         public Boolean IsMissing => Text == null;
 
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return this;
-        }
+        public override IEnumerable<SyntaxNode> GetChildren() => Enumerable.Empty<SyntaxNode>();
+    }
+
+    public enum TokenKind
+    {
+        BadToken,
+        EndOfFileToken,
+        WhitespaceToken,
+        DotToken,
+        SemicolonToken,
+        NumberToken,
+        StringToken,
+        PlusToken,
+        MinusToken,
+        StarToken,
+        SlashToken,
+        BangToken,
+        EqualsToken,
+        TildeToken,
+        HatToken,
+        AmpersandToken,
+        AmpersandAmpersandToken,
+        PipeToken,
+        PipePipeToken,
+        EqualsEqualsToken,
+        BangEqualsToken,
+        LessToken,
+        LessEqualsToken,
+        GreaterToken,
+        GreaterEqualsToken,
+        OpenParenthesisToken,
+        CloseParenthesisToken,
+        OpenBraceToken,
+        CloseBraceToken,
+        ColonToken,
+        CommaToken,
+        IdentifierToken,
+
+        NamespaceKeyword,
+        ClassKeyword,
+        StructKeyword,
+        InterfaceKeyword,
+        AsyncKeyword,
+        GetKeyword,
+        SetKeyword,
+        BreakKeyword,
+        ContinueKeyword,
+        ElseKeyword,
+        FalseKeyword,
+        ForKeyword,
+        IfKeyword,
+        LetKeyword,
+        ReturnKeyword,
+        TrueKeyword,
+        VarKeyword,
+        WhileKeyword,
+        DoKeyword,
+        SwitchKeyword,
+        CaseKeyword,
+        WhenKeyword,
     }
 }

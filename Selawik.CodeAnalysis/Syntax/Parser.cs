@@ -17,11 +17,13 @@
 //  along with swc.  If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Collections.Immutable;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Selawik.CodeAnalysis.Text;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    sealed class Parser
+    public sealed class Parser
     {
         readonly SourceText text;
         readonly Lexer lexer;
@@ -30,13 +32,15 @@ namespace Selawik.CodeAnalysis.Syntax
         public DiagnosticBag Diagnostics { get; }
 
         SyntaxToken? peek;
-        SyntaxToken current = default!;
+        SyntaxToken current;
 
         public Parser(SyntaxTree syntaxTree)
         {
             lexer = new Lexer(syntaxTree);
             Diagnostics = lexer.Diagnostics;
             this.syntaxTree = syntaxTree;
+
+            current = lexer.Lex();
         }
 
         SyntaxToken Current => current;
@@ -48,10 +52,16 @@ namespace Selawik.CodeAnalysis.Syntax
             var nextToken = peek ?? current;
             current = lexer.Lex();
             peek = null;
+
+            while (current.Kind == TokenKind.WhitespaceToken)
+            {
+                current = lexer.Lex();
+            }
+
             return nextToken;
         }
 
-        SyntaxToken MatchToken(SyntaxKind kind)
+        SyntaxToken MatchToken(TokenKind kind)
         {
             if (Current.Kind == kind)
                 return NextToken();
@@ -62,9 +72,33 @@ namespace Selawik.CodeAnalysis.Syntax
 
         public CompilationUnitSyntax ParseCompilationUnit()
         {
-            var eof = MatchToken(SyntaxKind.EndOfFileToken);
-            return new CompilationUnitSyntax(syntaxTree, eof);
+            var ns = ParseNamespaceDirective();
+            var eof = MatchToken(TokenKind.EndOfFileToken);
+            return new CompilationUnitSyntax(ns, eof, syntaxTree);
         }
 
+        NamespaceDirectiveSyntax ParseNamespaceDirective()
+        {
+            var keyword = MatchToken(TokenKind.NamespaceKeyword);
+            var ns = ParseDottedNameList();
+            var semi = MatchToken(TokenKind.SemicolonToken);
+            return new NamespaceDirectiveSyntax(keyword, ns, semi, syntaxTree);
+        }
+
+        SeparatedSyntaxList<SyntaxToken> ParseDottedNameList()
+        {
+            var nodes = ImmutableArray.CreateBuilder<SyntaxNode>();
+            while (current.Kind == TokenKind.IdentifierToken)
+            {
+                nodes.Add(MatchToken(TokenKind.IdentifierToken));
+
+                if (current.Kind == TokenKind.DotToken)
+                    nodes.Add(NextToken());
+                else
+                    break;
+            }
+
+            return new SeparatedSyntaxList<SyntaxToken>(nodes.ToImmutable());
+        }
     }
 }

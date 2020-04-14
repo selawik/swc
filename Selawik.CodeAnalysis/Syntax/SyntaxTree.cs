@@ -96,9 +96,9 @@ namespace Selawik.CodeAnalysis.Syntax
                 while (true)
                 {
                     var token = l.Lex();
-                    if (token.Kind == SyntaxKind.EndOfFileToken)
+                    if (token.Kind == TokenKind.EndOfFileToken)
                     {
-                        root = new CompilationUnitSyntax(st, token);
+                        root = new CompilationUnitSyntax(default!, token, st);
                         break;
                     }
 

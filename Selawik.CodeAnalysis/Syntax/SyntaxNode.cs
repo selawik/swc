@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Selawik.CodeAnalysis.Text;
 
 namespace Selawik.CodeAnalysis.Syntax
@@ -33,8 +34,6 @@ namespace Selawik.CodeAnalysis.Syntax
         }
 
         public SyntaxTree SyntaxTree { get; }
-
-        public abstract SyntaxKind Kind { get; }
 
         public abstract IEnumerable<SyntaxNode> GetChildren();
 
@@ -74,12 +73,23 @@ namespace Selawik.CodeAnalysis.Syntax
             if (toConsole)
                 Console.ForegroundColor = node is SyntaxToken ? ConsoleColor.Blue : ConsoleColor.Cyan;
 
-            writer.Write(node.Kind);
+            if (node.GetType().GetProperties().FirstOrDefault(a => a.Name == "Kind") is PropertyInfo p)
+            {
+                writer.Write(p.GetValue(node));
+            }
+            else
+            {
+                writer.Write(node.GetType()
+                    .Name
+                    .Replace("Syntax", "", StringComparison.Ordinal)
+                    .Replace("Expression", "", StringComparison.Ordinal));
+            }
 
-            if (node is SyntaxToken { Value: { } } t)
+
+            if (node is SyntaxToken { Text: { } txt })
             {
                 writer.Write(" ");
-                writer.Write(t.Value);
+                writer.Write(txt);
             }
 
             if (toConsole)

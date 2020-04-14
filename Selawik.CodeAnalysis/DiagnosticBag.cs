@@ -41,7 +41,7 @@ namespace Selawik.CodeAnalysis
         public void ReportBadCharacter(Int32 position, Char character)
             => Report(new TextSpan(position, 1), $"Bad character input: '{character}'.");
 
-        public void ReportUnexpectedToken(TextSpan span, SyntaxKind actualKind, SyntaxKind expectedKind)
+        public void ReportUnexpectedToken(TextSpan span, TokenKind actualKind, TokenKind expectedKind)
             => Report(span, $"Unexpected token <{actualKind}>, expected <{expectedKind}>.");
 
 
@@ -51,5 +51,4 @@ namespace Selawik.CodeAnalysis
             diagnostics.Add(diagnostic);
         }
     }
-
 }

@@ -21,21 +21,32 @@ using System.Collections.Generic;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public sealed class CompilationUnitSyntax : SyntaxNode
+    public class NamespaceDirectiveSyntax : SyntaxNode
     {
-        public CompilationUnitSyntax(NamespaceDirectiveSyntax @namespace, SyntaxToken endOfFileToken, SyntaxTree syntaxTree) : base(syntaxTree)
+        public NamespaceDirectiveSyntax(SyntaxToken namespaceKeyword,
+                                        SeparatedSyntaxList<SyntaxToken> @namespace,
+                                        SyntaxToken semicolonToken,
+                                        SyntaxTree syntaxTree) : base(syntaxTree)
         {
+            NamespaceKeyword = namespaceKeyword;
             Namespace = @namespace;
-            EndOfFileToken = endOfFileToken;
+            SemicolonToken = semicolonToken;
         }
 
-        public NamespaceDirectiveSyntax Namespace { get; }
-        public SyntaxToken EndOfFileToken { get; }
+        public SyntaxToken NamespaceKeyword { get; }
+        public SeparatedSyntaxList<SyntaxToken> Namespace { get; }
+        public SyntaxToken SemicolonToken { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return Namespace;
-            yield return EndOfFileToken;
+            yield return NamespaceKeyword;
+
+            foreach (var i in Namespace.GetWithSeparators())
+            {
+                yield return i;
+            }
+
+            yield return SemicolonToken;
         }
     }
 }

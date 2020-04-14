@@ -18,7 +18,6 @@
 //  
 
 using System;
-using Selawik.CodeAnalysis;
 using Selawik.CodeAnalysis.Syntax;
 using Selawik.CodeAnalysis.Text;
 
@@ -31,19 +30,17 @@ namespace Selawik.Compiler
             while (true)
             {
                 var input = Console.ReadLine();
-                var lexer = new Lexer(SourceText.From(input));
 
-                SyntaxToken token;
-                while ((token = lexer.Lex()).Kind != SyntaxKind.EndOfFileToken)
-                {
-                    token.WriteTo(Console.Out);
-                }
+                var syntax = SyntaxTree.Parse(SourceText.From(input));
 
-                foreach (var diag in lexer.Diagnostics)
+                syntax.Root.WriteTo(Console.Out);
+
+                foreach (var diag in syntax.Diagnostics)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(diag);
                 }
+
                 Console.ResetColor();
             }
         }
