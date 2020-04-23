@@ -80,5 +80,20 @@ namespace Selawik.CodeAnalysis.Syntax
         public static String? GetText(TokenKind kind) => to.TryGetValue(kind, out var result) ? result : null;
 
         public static TokenKind GetKeywordKind(String text) => from.TryGetValue(text, out var kind) ? kind : TokenKind.IdentifierToken;
+
+        internal static Int32 UnaryOperatorPrecedence(TokenKind kind)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static Int32 BinaryOperatorPrecedence(TokenKind kind)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static Boolean? IsRightAssociative(TokenKind kind)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

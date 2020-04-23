@@ -18,7 +18,6 @@
 // 
 
 using System.Collections.Immutable;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Selawik.CodeAnalysis.Text;
 
 namespace Selawik.CodeAnalysis.Syntax
@@ -73,9 +72,71 @@ namespace Selawik.CodeAnalysis.Syntax
         public CompilationUnitSyntax ParseCompilationUnit()
         {
             var ns = ParseNamespaceDirective();
+
             var eof = MatchToken(TokenKind.EndOfFileToken);
+
+            while (current.Kind != TokenKind.EndOfFileToken)
+            {
+                var expr = ParseExpression();
+            }
+
             return new CompilationUnitSyntax(ns, eof, syntaxTree);
         }
+
+        ExpressionSyntax ParseExpression(int parentPrecedence = 0, bool? rightAssociative = null)
+        {
+            // This function is 'always' trying to parse out a binary expression.
+            // However, if it ends up we aren't actually parsing one out, it will
+            // bail out accordingly.
+
+            ExpressionSyntax left;
+
+            // Check if we're parsing a unary operator. If we are, we want to consume it
+            // and apply it to the next expression.
+            var unaryOperatorPrecedence = SyntaxFacts.UnaryOperatorPrecedence(current.Kind);
+            if (unaryOperatorPrecedence != 0)
+            {
+                var operatorToken = NextToken();
+                var operand = ParseExpression(unaryOperatorPrecedence);
+                left = new UnaryExpressionSyntax(operatorToken, operand, syntaxTree);
+            }
+            else
+            {
+                left = ParsePrimaryExpression();
+            }
+
+            while (true)
+            {
+                var precedence = SyntaxFacts.BinaryOperatorPrecedence(current.Kind);
+                // We may have gotten here, where current isn't actually a binary operator (e.g. 'f(-5)').
+                // In that case, we should bail, and simply return what we've got.
+
+                // In the case that we are parsing another operator (e.g. '2 * 3 + 4'), we understandably must check for precedence.
+                // We're parsing left to right, so if we are already in a nested expression, then we need to decide where this newly
+                // parsed out term goes; to the parent expression (2 * 3) or this one (3 + 4).
+                // So, if the parent precedence is equal or higher, we also bail and return the term we've got.
+                // As a slight caveat, some operators are right-associative. In that case, if the precedences are equal, we do
+                // still want to eagerly parse them out as we go.
+                if (precedence == 0 || (rightAssociative == true ? precedence < parentPrecedence : precedence <= parentPrecedence))
+                    break;
+
+                var operatorToken = NextToken();
+
+                // If we're still going, then we have the higher precedence (or we're right associative), so we can parse
+                // another expression out and form a binary expression from that. Since that makes us the "parent expression"
+                // now, we need to pass in our precedence, and whether we're right associative.
+                var right = ParseExpression(precedence, SyntaxFacts.IsRightAssociative(operatorToken.Kind));
+                left = new BinaryExpressionSyntax(left, operatorToken, right, syntaxTree);
+            }
+
+            return left;
+        }
+
+        ExpressionSyntax ParsePrimaryExpression() => current.Kind switch
+        {
+            _ => throw null!
+        };
+
 
         NamespaceDirectiveSyntax ParseNamespaceDirective()
         {
