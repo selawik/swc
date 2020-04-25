@@ -18,6 +18,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection.Metadata.Ecma335;
 using Selawik.CodeAnalysis.Text;
@@ -141,12 +142,15 @@ namespace Selawik.CodeAnalysis.Syntax
         {
             TokenKind.TrueKeyword => ParseBoolean(),
             TokenKind.FalseKeyword => ParseBoolean(),
-            TokenKind.VarKeyword => ParseDeclaration()
+            TokenKind.StringToken => ParseString(),
+            TokenKind.NumberToken => ParseNumber(),
+            TokenKind.VarKeyword => ParseDeclaration(),
+            TokenKind.UsingKeyword => ParseUsing(),
         };
 
         DeclarationSyntax ParseDeclaration()
         {
-            var type = ParseTypeName(true);
+            var type = ParseDottedName(true);
             var name = MatchToken(TokenKind.IdentifierToken);
             MatchToken(TokenKind.EqualsToken);
             var expr = ParseExpression();
@@ -157,7 +161,26 @@ namespace Selawik.CodeAnalysis.Syntax
         LiteralSyntax ParseBoolean() => new LiteralSyntax(
             current.Kind == TokenKind.TrueKeyword ? MatchToken(TokenKind.TrueKeyword) : MatchToken(TokenKind.FalseKeyword), syntaxTree);
 
-        SeparatedSyntaxList<SyntaxToken> ParseTypeName(bool allowVar)
+        LiteralSyntax ParseString() => new LiteralSyntax(MatchToken(TokenKind.StringToken), syntaxTree);
+        LiteralSyntax ParseNumber() => new LiteralSyntax(MatchToken(TokenKind.NumberToken), syntaxTree);
+
+        UsingSyntax ParseUsing()
+        {
+            var @using = MatchToken(TokenKind.UsingKeyword);
+            var ns = ParseDottedName();
+
+            return new UsingSyntax(@using, ns, syntaxTree);
+        }
+
+        NamespaceDirectiveSyntax ParseNamespaceDirective()
+        {
+            var keyword = MatchToken(TokenKind.NamespaceKeyword);
+            var ns = ParseDottedName();
+            var semi = MatchToken(TokenKind.SemicolonToken);
+            return new NamespaceDirectiveSyntax(keyword, ns, semi, syntaxTree);
+        }
+
+        SeparatedSyntaxList<SyntaxToken> ParseDottedName(bool allowVar = false)
         {
             var builder = ImmutableArray.CreateBuilder<SyntaxNode>();
             if (allowVar && current.Kind == TokenKind.VarKeyword)
@@ -174,30 +197,5 @@ namespace Selawik.CodeAnalysis.Syntax
             return new SeparatedSyntaxList<SyntaxToken>(builder.ToImmutable());
 
         }
-
-        NamespaceDirectiveSyntax ParseNamespaceDirective()
-        {
-            var keyword = MatchToken(TokenKind.NamespaceKeyword);
-            var ns = ParseDottedNameList();
-            var semi = MatchToken(TokenKind.SemicolonToken);
-            return new NamespaceDirectiveSyntax(keyword, ns, semi, syntaxTree);
-        }
-
-        SeparatedSyntaxList<SyntaxToken> ParseDottedNameList()
-        {
-            var nodes = ImmutableArray.CreateBuilder<SyntaxNode>();
-            while (current.Kind == TokenKind.IdentifierToken)
-            {
-                nodes.Add(MatchToken(TokenKind.IdentifierToken));
-
-                if (current.Kind == TokenKind.DotToken)
-                    nodes.Add(NextToken());
-                else
-                    break;
-            }
-
-            return new SeparatedSyntaxList<SyntaxToken>(nodes.ToImmutable());
-        }
     }
-
 }

@@ -73,6 +73,7 @@ namespace Selawik.CodeAnalysis.Syntax
             { TokenKind.SwitchKeyword, "switch" },
             { TokenKind.CaseKeyword, "case" },
             { TokenKind.WhenKeyword, "when" },
+            { TokenKind.UsingKeyword, "using" }
         };
 
         static readonly Dictionary<String, TokenKind> from = to.ToDictionary(k => k.Value, k => k.Key);

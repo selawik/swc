@@ -21,21 +21,25 @@ using System.Collections.Generic;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public sealed class UnarySyntax : ExpressionSyntax
+    public sealed class UsingSyntax : ExpressionSyntax
     {
-        public UnarySyntax(SyntaxToken operatorToken, ExpressionSyntax operand, SyntaxTree syntaxTree) : base(syntaxTree)
+        public UsingSyntax(SyntaxToken usingKeyword, SeparatedSyntaxList<SyntaxToken> @namespace, SyntaxTree syntaxTree) : base(syntaxTree)
         {
-            OperatorToken = operatorToken;
-            Operand = operand;
+            UsingKeyword = usingKeyword;
+            Namespace = @namespace;
         }
 
-        public SyntaxToken OperatorToken { get; }
-        public ExpressionSyntax Operand { get; }
+        public SyntaxToken UsingKeyword { get; }
+        public SeparatedSyntaxList<SyntaxToken> Namespace { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return OperatorToken;
-            yield return Operand;
+            yield return UsingKeyword;
+            foreach (var i in Namespace)
+            {
+                yield return i;
+            }
         }
     }
+
 }

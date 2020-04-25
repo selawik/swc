@@ -21,7 +21,7 @@ using System.Collections.Generic;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public class NamespaceDirectiveSyntax : SyntaxNode
+    public sealed class NamespaceDirectiveSyntax : SyntaxNode
     {
         public NamespaceDirectiveSyntax(SyntaxToken namespaceKeyword,
                                         SeparatedSyntaxList<SyntaxToken> @namespace,

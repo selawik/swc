@@ -21,7 +21,7 @@ using System.Collections.Generic;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public class DeclarationSyntax : ExpressionSyntax
+    public sealed class DeclarationSyntax : ExpressionSyntax
     {
         public DeclarationSyntax(SeparatedSyntaxList<SyntaxToken> type, SyntaxToken name, ExpressionSyntax value, SyntaxTree syntaxTree) : base(syntaxTree)
         {

@@ -24,7 +24,7 @@ using Selawik.CodeAnalysis.Text;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public class SyntaxToken : SyntaxNode
+    public sealed class SyntaxToken : SyntaxNode
     {
         public SyntaxToken(SyntaxTree syntaxTree, TokenKind kind, Int32 position, String? text, Object? value) : base(syntaxTree)
         {
@@ -105,5 +105,6 @@ namespace Selawik.CodeAnalysis.Syntax
         SwitchKeyword,
         CaseKeyword,
         WhenKeyword,
+        UsingKeyword,
     }
 }
