@@ -21,9 +21,9 @@ using System.Collections.Generic;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public class BinaryExpressionSyntax : ExpressionSyntax
+    public class BinarySyntax : ExpressionSyntax
     {
-        public BinaryExpressionSyntax(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right, SyntaxTree syntaxTree) : base(syntaxTree)
+        public BinarySyntax(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right, SyntaxTree syntaxTree) : base(syntaxTree)
         {
             Left = left;
             OperatorToken = operatorToken;

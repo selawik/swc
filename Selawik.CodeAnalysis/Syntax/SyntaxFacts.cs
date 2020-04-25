@@ -83,17 +83,25 @@ namespace Selawik.CodeAnalysis.Syntax
 
         internal static Int32 UnaryOperatorPrecedence(TokenKind kind)
         {
-            throw new NotImplementedException();
+            switch (kind)
+            {
+                default:
+                    return 0;
+            }
         }
 
         internal static Int32 BinaryOperatorPrecedence(TokenKind kind)
         {
-            throw new NotImplementedException();
+            switch (kind)
+            {
+                default:
+                    return 0;
+            }
         }
 
         internal static Boolean? IsRightAssociative(TokenKind kind)
         {
-            throw new NotImplementedException();
+            return false;
         }
     }
 }

@@ -21,9 +21,9 @@ using System.Collections.Generic;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    internal class UnaryExpressionSyntax : ExpressionSyntax
+    internal class UnarySyntax : ExpressionSyntax
     {
-        public UnaryExpressionSyntax(SyntaxToken operatorToken, ExpressionSyntax operand, SyntaxTree syntaxTree) : base(syntaxTree)
+        public UnarySyntax(SyntaxToken operatorToken, ExpressionSyntax operand, SyntaxTree syntaxTree) : base(syntaxTree)
         {
             OperatorToken = operatorToken;
             Operand = operand;

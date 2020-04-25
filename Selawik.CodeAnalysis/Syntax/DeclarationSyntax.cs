@@ -18,31 +18,31 @@
 // 
 
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public sealed class CompilationUnitSyntax : SyntaxNode
+    public class DeclarationSyntax : ExpressionSyntax
     {
-        public CompilationUnitSyntax(NamespaceDirectiveSyntax @namespace, ImmutableArray<StatementSyntax> statements, SyntaxToken endOfFileToken, SyntaxTree syntaxTree) : base(syntaxTree)
+        public DeclarationSyntax(SeparatedSyntaxList<SyntaxToken> type, SyntaxToken name, ExpressionSyntax value, SyntaxTree syntaxTree) : base(syntaxTree)
         {
-            Namespace = @namespace;
-            Statements = statements;
-            EndOfFileToken = endOfFileToken;
+            Type = type;
+            Name = name;
+            Value = value;
         }
 
-        public NamespaceDirectiveSyntax Namespace { get; }
-        public ImmutableArray<StatementSyntax> Statements { get; }
-        public SyntaxToken EndOfFileToken { get; }
+        public SeparatedSyntaxList<SyntaxToken> Type { get; }
+        public SyntaxToken Name { get; }
+        public ExpressionSyntax Value { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return Namespace;
-            foreach (var ex in Statements)
+            foreach (var i in Type)
             {
-                yield return ex;
+                yield return i;
             }
-            yield return EndOfFileToken;
+
+            yield return Name;
+            yield return Value;
         }
     }
 }

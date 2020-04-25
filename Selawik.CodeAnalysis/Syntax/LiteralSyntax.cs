@@ -17,32 +17,32 @@
 //  along with swc.  If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public sealed class CompilationUnitSyntax : SyntaxNode
+    public sealed class LiteralSyntax : ExpressionSyntax
     {
-        public CompilationUnitSyntax(NamespaceDirectiveSyntax @namespace, ImmutableArray<StatementSyntax> statements, SyntaxToken endOfFileToken, SyntaxTree syntaxTree) : base(syntaxTree)
+        public LiteralSyntax(SyntaxToken literalToken, SyntaxTree syntaxTree)
+            : this(literalToken, literalToken.Value, syntaxTree)
         {
-            Namespace = @namespace;
-            Statements = statements;
-            EndOfFileToken = endOfFileToken;
         }
 
-        public NamespaceDirectiveSyntax Namespace { get; }
-        public ImmutableArray<StatementSyntax> Statements { get; }
-        public SyntaxToken EndOfFileToken { get; }
+        public LiteralSyntax(SyntaxToken literalToken, Object? value, SyntaxTree syntaxTree)
+            : base(syntaxTree)
+        {
+            LiteralToken = literalToken;
+            Value = value;
+        }
+
+        public SyntaxToken LiteralToken { get; }
+        public Object? Value { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return Namespace;
-            foreach (var ex in Statements)
-            {
-                yield return ex;
-            }
-            yield return EndOfFileToken;
+            yield return LiteralToken;
         }
     }
+
 }

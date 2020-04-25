@@ -17,7 +17,9 @@
 //  along with swc.  If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System;
 using System.Collections.Immutable;
+using System.Reflection.Metadata.Ecma335;
 using Selawik.CodeAnalysis.Text;
 
 namespace Selawik.CodeAnalysis.Syntax
@@ -72,18 +74,21 @@ namespace Selawik.CodeAnalysis.Syntax
         public CompilationUnitSyntax ParseCompilationUnit()
         {
             var ns = ParseNamespaceDirective();
-
-            var eof = MatchToken(TokenKind.EndOfFileToken);
+            var builder = ImmutableArray.CreateBuilder<StatementSyntax>();
 
             while (current.Kind != TokenKind.EndOfFileToken)
             {
-                var expr = ParseExpression();
+                var x = ParseExpression();
+                var semi = MatchToken(TokenKind.SemicolonToken);
+                builder.Add(new StatementSyntax(x, semi, syntaxTree));
             }
 
-            return new CompilationUnitSyntax(ns, eof, syntaxTree);
+            var eof = MatchToken(TokenKind.EndOfFileToken);
+
+            return new CompilationUnitSyntax(ns, builder.ToImmutable(), eof, syntaxTree);
         }
 
-        ExpressionSyntax ParseExpression(int parentPrecedence = 0, bool? rightAssociative = null)
+        ExpressionSyntax ParseExpression(Int32 parentPrecedence = 0, Boolean? rightAssociative = null)
         {
             // This function is 'always' trying to parse out a binary expression.
             // However, if it ends up we aren't actually parsing one out, it will
@@ -98,7 +103,7 @@ namespace Selawik.CodeAnalysis.Syntax
             {
                 var operatorToken = NextToken();
                 var operand = ParseExpression(unaryOperatorPrecedence);
-                left = new UnaryExpressionSyntax(operatorToken, operand, syntaxTree);
+                left = new UnarySyntax(operatorToken, operand, syntaxTree);
             }
             else
             {
@@ -126,7 +131,7 @@ namespace Selawik.CodeAnalysis.Syntax
                 // another expression out and form a binary expression from that. Since that makes us the "parent expression"
                 // now, we need to pass in our precedence, and whether we're right associative.
                 var right = ParseExpression(precedence, SyntaxFacts.IsRightAssociative(operatorToken.Kind));
-                left = new BinaryExpressionSyntax(left, operatorToken, right, syntaxTree);
+                left = new BinarySyntax(left, operatorToken, right, syntaxTree);
             }
 
             return left;
@@ -134,9 +139,41 @@ namespace Selawik.CodeAnalysis.Syntax
 
         ExpressionSyntax ParsePrimaryExpression() => current.Kind switch
         {
-            _ => throw null!
+            TokenKind.TrueKeyword => ParseBoolean(),
+            TokenKind.FalseKeyword => ParseBoolean(),
+            TokenKind.VarKeyword => ParseDeclaration()
         };
 
+        DeclarationSyntax ParseDeclaration()
+        {
+            var type = ParseTypeName(true);
+            var name = MatchToken(TokenKind.IdentifierToken);
+            MatchToken(TokenKind.EqualsToken);
+            var expr = ParseExpression();
+
+            return new DeclarationSyntax(type, name, expr, syntaxTree);
+        }
+
+        LiteralSyntax ParseBoolean() => new LiteralSyntax(
+            current.Kind == TokenKind.TrueKeyword ? MatchToken(TokenKind.TrueKeyword) : MatchToken(TokenKind.FalseKeyword), syntaxTree);
+
+        SeparatedSyntaxList<SyntaxToken> ParseTypeName(bool allowVar)
+        {
+            var builder = ImmutableArray.CreateBuilder<SyntaxNode>();
+            if (allowVar && current.Kind == TokenKind.VarKeyword)
+            {
+                builder.Add(NextToken());
+                return new SeparatedSyntaxList<SyntaxToken>(builder.ToImmutable());
+            }
+
+            do
+            {
+                builder.Add(MatchToken(TokenKind.IdentifierToken));
+            } while (current.Kind == TokenKind.DotToken);
+
+            return new SeparatedSyntaxList<SyntaxToken>(builder.ToImmutable());
+
+        }
 
         NamespaceDirectiveSyntax ParseNamespaceDirective()
         {
@@ -162,4 +199,5 @@ namespace Selawik.CodeAnalysis.Syntax
             return new SeparatedSyntaxList<SyntaxToken>(nodes.ToImmutable());
         }
     }
+
 }

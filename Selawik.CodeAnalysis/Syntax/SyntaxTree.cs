@@ -68,49 +68,5 @@ namespace Selawik.CodeAnalysis.Syntax
         {
             return new SyntaxTree(text, Parse);
         }
-
-        public static ImmutableArray<SyntaxToken> ParseTokens(string text)
-        {
-            var sourceText = SourceText.From(text);
-            return ParseTokens(sourceText);
-        }
-
-        public static ImmutableArray<SyntaxToken> ParseTokens(string text, out ImmutableArray<Diagnostic> diagnostics)
-        {
-            var sourceText = SourceText.From(text);
-            return ParseTokens(sourceText, out diagnostics);
-        }
-
-        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text)
-        {
-            return ParseTokens(text, out _);
-        }
-
-        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, out ImmutableArray<Diagnostic> diagnostics)
-        {
-            var tokens = new List<SyntaxToken>();
-
-            void ParseTokens(SyntaxTree st, out CompilationUnitSyntax root, out ImmutableArray<Diagnostic> d)
-            {
-                var l = new Lexer(st);
-                while (true)
-                {
-                    var token = l.Lex();
-                    if (token.Kind == TokenKind.EndOfFileToken)
-                    {
-                        root = new CompilationUnitSyntax(default!, token, st);
-                        break;
-                    }
-
-                    tokens.Add(token);
-                }
-
-                d = l.Diagnostics.ToImmutableArray();
-            }
-
-            var syntaxTree = new SyntaxTree(text, ParseTokens);
-            diagnostics = syntaxTree.Diagnostics;
-            return tokens.ToImmutableArray();
-        }
     }
 }

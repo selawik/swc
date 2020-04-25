@@ -18,31 +18,24 @@
 // 
 
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace Selawik.CodeAnalysis.Syntax
 {
-    public sealed class CompilationUnitSyntax : SyntaxNode
+    public class StatementSyntax : SyntaxNode
     {
-        public CompilationUnitSyntax(NamespaceDirectiveSyntax @namespace, ImmutableArray<StatementSyntax> statements, SyntaxToken endOfFileToken, SyntaxTree syntaxTree) : base(syntaxTree)
+        public StatementSyntax(ExpressionSyntax expression, SyntaxToken semicolon, SyntaxTree syntaxTree) : base(syntaxTree)
         {
-            Namespace = @namespace;
-            Statements = statements;
-            EndOfFileToken = endOfFileToken;
+            Expression = expression;
+            Semicolon = semicolon;
         }
 
-        public NamespaceDirectiveSyntax Namespace { get; }
-        public ImmutableArray<StatementSyntax> Statements { get; }
-        public SyntaxToken EndOfFileToken { get; }
+        public ExpressionSyntax Expression { get; }
+        public SyntaxToken Semicolon { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return Namespace;
-            foreach (var ex in Statements)
-            {
-                yield return ex;
-            }
-            yield return EndOfFileToken;
+            yield return Expression;
+            yield return Semicolon;
         }
     }
 }
